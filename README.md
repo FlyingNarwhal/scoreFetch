@@ -7,4 +7,4 @@ sfV1.0 does not currently compile, I am working on the GUI currently, and it sti
 version .6 does work right now and uses the terminal to display scores. 
 
 For Score Fetch to work properly on Windows, ANSI colors must be enabled. This is NOT TESTED and I cannot
-ensure that it will work.
+ensure that it will work, only in theory will it work.
