@@ -1,5 +1,5 @@
 ###############################################################################
-#                               Score Fetch v0.6                              #
+#                               Score Fetch v1.0                              #
 #                                   For Linux,                                #
 #                              and soon, Android!                             #
 #                Improved Score display, following the KISS philosophy        #
@@ -26,50 +26,55 @@ js.asp?jsonp=true&sport=%s&period=%d'
 
 class ScoreFetchApp(App):
 
-	def nhlCallback(instance):
-		if __name__ == '__main__':
-			for league in ['NHL']:
-				return ScoreFetchApp.sportsFetch(league)
+    def nhlCallback(self, instance):
+        if __name__ == '__main__':
+            for league in ['NHL']:
+                return self.sportsFetch(league)
 
-	def sportsFetch(league):
-		yymmdd = int(datetime.datetime.now(pytz.timezone('US/Mountain'))
-		.strftime("%Y%m%d"))
-		try:
-			f = urllib2.urlopen(url % (league, yymmdd))
-			jsonp = f.read()
-			f.close()
-			jsonStr = jsonp.replace(
-			'shsMSNBCTicker.loadGamesData(', '').replace(');', '')
-			jsonParsed = json.loads(jsonStr)
-			#print jsonStr
-			for gameStr in jsonParsed.get('games', []):
-				rows, columns = os.popen('stty size', 'r').read().split()
-				gameTree = ET.XML(gameStr)
-				vTree = gameTree.find('visiting-team')
-				homeTree = gameTree.find('home-team')
-				gSTREE = gameTree.find('gamestate')
-				home = homeTree.get('nickname')
-				away = + vTree.get('nickname')
-				hScore = homeTree.get('score')
-				aScore = vTree.get('score')
-				per = gSTREE.get('display_status2')
-				clock = gSTREE.get('display_status1')
-				os.environ['TZ'] = 'US/Mountain'
-				del os.environ['TZ']
-				line1 = per + away + aScore
-				line2 = clock + home + hScore
-				return line1, line2
-		except Exception, e:
-			print e
+    def sportsFetch(self, league):
+        yymmdd = int(datetime.datetime.now(pytz.timezone('US/Mountain'))
+        .strftime("%Y%m%d"))
+        try:
+            f = urllib2.urlopen(url % (league, yymmdd))
+            jsonp = f.read()
+            f.close()
+            jsonStr = jsonp.replace(
+            'shsMSNBCTicker.loadGamesData(', '').replace(');', '')
+            jsonParsed = json.loads(jsonStr)
+            #print jsonStr
+            for gameStr in jsonParsed.get('games', []):
+                rows, columns = os.popen('stty size', 'r').read().split()
+                gameTree = ET.XML(gameStr)
+                vTree = gameTree.find('visiting-team')
+                homeTree = gameTree.find('home-team')
+                gSTREE = gameTree.find('gamestate')
+                home = homeTree.get('nickname')
+                away = + vTree.get('nickname')
+                hScore = homeTree.get('score')
+                aScore = vTree.get('score')
+                per = gSTREE.get('display_status2')
+                clock = gSTREE.get('display_status1')
+                os.environ['TZ'] = 'US/Mountain'
+                del os.environ['TZ']
+                line1 = per + away + aScore
+                line2 = clock + home + hScore
+                return line1, line2
+        except Exception, e:
+            print e
 
-	def build(self):
-		#NHLScore = lb(ScoreFetchApp.nhlScoreFetch())
-		NHLBtn = Button(text='NHL', border=(3, 3, 3, 3))
-		layout = BoxLayout(orientation='vertical')
-		NHLBtn.bind(on_press=ScoreFetchApp.nhlCallback())
-		layout.add_widget(NHLBtn)
-		return layout
+    def build(self):
+        root = self.SetupGui()
+        return root
 
+    def SetupGui(self):
+        nhlbtn = Button(text='NHL', border=(3, 3, 3, 3))
+        self.nhlbtn = Button(text='NHL', border=(3, 3, 3, 3))
+        self.layout = BoxLayout(orientation='vertical')
+        self.layout.add_widget(nhlbtn)
+        self.nhlbtn.bind(on_press=(self.nhlCallback()))
+        return self.layout
+
+fetchApp = ScoreFetchApp().build()
 
 if __name__ == '__main__':
-	ScoreFetchApp().run()
+    fetchApp().run()
