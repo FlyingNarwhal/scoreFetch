@@ -14,8 +14,9 @@ import time
 import json
 import os
 import elementtree.ElementTree as ET
+from bs4 import BeautifulSoup as bs
 from colorama import Fore
-from calendar import month_name
+import subprocess
 
 
 url = 'http://scores.nbcsports.msnbc.com/ticker/data/gamesMSNBC.\
@@ -25,15 +26,16 @@ js.asp?jsonp=true&sport=%s&period=%d'
 def sportsFetch(league):
     yymmdd = int(datetime.datetime.now(pytz.timezone('US/Mountain'))
     .strftime("%Y%m%d"))
+    Fore.RESET
 
     try:
+        Fore.RESET
         f = urllib2.urlopen(url % (league, yymmdd))
         jsonp = f.read()
         f.close()
         jsonStr = jsonp.replace(
         'shsMSNBCTicker.loadGamesData(', '').replace(');', '')
         jsonParsed = json.loads(jsonStr)
-        #print jsonStr
         for gameStr in jsonParsed.get('games', []):
             rows, columns = os.popen('stty size', 'r').read().split()
             gameTree = ET.XML(gameStr)
@@ -48,13 +50,11 @@ def sportsFetch(league):
             clock = Fore.GREEN + gameSTree.get('display_status1') + Fore.RESET
             os.environ['TZ'] = 'US/Mountain'
             del os.environ['TZ']
-            # Print out scores
             lineLenV = 6 - len(away)
             lineLenH = 6 - len(home)
-            #lineLenVP =
-            #lineLenHP =
             print per, away.rjust(lineLenV), visitScore
             print clock, home.rjust(lineLenH), homeScore
+            Fore.RESET
     except Exception, e:
         print e
 
@@ -65,7 +65,7 @@ def nbaScoreFetch():
             for league in ['NBA']:
                 sportsFetch(league)
                 sleepLength()
-                os.system('clear')
+            os.system('clear')
 
 
 def nhlScoreFetch():
@@ -78,17 +78,10 @@ def nhlScoreFetch():
 
 
 def leagueChoice():
-    if choice.lower() == 'nba' or choice == str(1):
+    if choice.lower() == 'nba' or choice == str(2):
         return nbaScoreFetch()
-    elif choice.lower() == 'nhl'or choice == str(2) or choice == '':
-        dlPod = raw_input('Download todays Backhand Shelf Podcast? ')
-        if dlPod.lower() == 'yes' or dlPod.lower() == 'y':
-            dlPodcast()
-            nhlScoreFetch()
-        elif dlPod.lower() == 'no' or dlPod.lower() == 'n':
-            return nhlScoreFetch()
-        else:
-            leagueChoice()
+    elif choice.lower() == 'nhl'or choice == str(1) or choice == '':
+        return nhlScoreFetch()
     elif choice.lower() == 'exit':
         print 'exiting'
     else:
@@ -96,32 +89,67 @@ def leagueChoice():
         leagueChoice()
 
 
-def dlPodcast():
-    date1 = datetime.date.today()
-    date2 = str(date1)[8:]
-    month1 = str(date1)[5:7]
-    month2 = int(month1)
-    year2 = str(date1)[:4]
-    currentMonth = month_name[month2].lower()
-    urlPod = 'http://podcastmedia.thescore.com/ooyala-mirror/backhand_\
-shelf_-_' + currentMonth + '_' + date2 + '_' + year2 + '.mp3'
+def dlPodcast(podcast, startlink, endlink):
+    opener = urllib2.build_opener()
+    url_opener = opener.open(podcast)
+    page = url_opener.read()
+    html = str(bs(page))
+    startLink = html.find(startlink)
+    endLink = html.find(endlink, startLink)
+    podcastUrl = html[startLink:endLink]
     try:
-        podcast = urllib2.urlopen(urlPod)
-        podName = urlPod.split('/')[-1]
-        output = open(podName, 'wb')
-        output.write(podcast.read())
+        mp3file = urllib2.urlopen(podcastUrl)
+        fileName = podcastUrl.split('/')[-1]
+        output = open(fileName, 'wb')
+        print Fore.MAGENTA + 'downloading... Then opening' + Fore.RESET
+        output.write(mp3file.read())
         output.close()
+        subprocess.call(['xdg-open ' + fileName], shell=True)
+
     except Exception:
-        print 'No podcast for today'
+        print 'No podcasts for today'
+
+
+def whichPod():
+    soupLinkBHS = 'http://feeds.feedburner.com/TheBackhandShelfPodcast'
+    soupLinkTBJ = 'http://feeds.feedburner.com/thescore/\
+podcasts/thebasketballjones'
+    bhsStartLink = 'http://podcastmedia.thescore.com/ooyala-mirror/'
+    tbjStartLink = 'http://feedproxy.google.com/~r/thescore/podcasts/\
+thebasketballjones/'
+    bhsEndLink = '</guid>'
+    tbjEndLink = '></media:content>'
+    print '==========================='
+    podChoice = raw_input(Fore.CYAN + '\'b\' for The Backhand Shelf\n\'j\' \
+for The Basketball Jones\n>>> ' + Fore.RESET)
+    if podChoice.lower() == 'b' or podChoice == str(1):
+        dlPodcast(soupLinkBHS, bhsStartLink, bhsEndLink)
+        nhlScoreFetch()
+    if podChoice.lower() == 'j' or podChoice == str(2):
+        dlPodcast(soupLinkTBJ, tbjStartLink, tbjEndLink)
+        nbaScoreFetch()
+    else:
+        print'type \'b\' or \'j\''
+        whichPod()
 
 
 def sleepLength():
-    if str(toSleep) == '':
+    try:
+        if str(toSleep) == '':
+            time.sleep(30)
+        else:
+            time.sleep(int(toSleep))
+    except Exception:
         time.sleep(30)
-    else:
-        time.sleep(int(toSleep))
 
 
-choice = raw_input(Fore.CYAN + 'Type \'NBA\' or \'NHL\': ' + Fore.RESET)
-toSleep = raw_input(Fore.CYAN + 'Refresh Time? ' + Fore.RESET)
-leagueChoice()
+dlsf = raw_input(Fore.CYAN + 'Download and listen to a podcast?\
+ Or get current scores?:\n' +
+    'Type ' + Fore.YELLOW + "'d'" + Fore.CYAN + 'to download, or ' +
+    Fore.YELLOW + "'sf'" + Fore.CYAN + ' to Score Fetch\n>>> ' + Fore.RESET)
+if dlsf.lower() == 'd' or dlsf == str(1) or dlsf == '':
+    whichPod()
+else:
+    choice = raw_input(Fore.CYAN + '\'NHL\' or \'NBA\'\n>>> ' + Fore.RESET)
+    toSleep = raw_input(Fore.CYAN + 'Refresh wait time?\n>>> ' + Fore.RESET)
+    leagueChoice()
