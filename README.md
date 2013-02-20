@@ -11,6 +11,11 @@ ensure that it will work, only in theory will it work.
 
 Change log
 ==========
+v0.7.1
+still labeled as .7
+BUG FIX: podcast url changes return no podcast for today
+ADDED: added The Basketball Jones podcast for downloading
+
 v0.7:
 added a change log
 added the basic framework for downloading podcasts; currently downloads today's Backhand Shelf podcast only.
