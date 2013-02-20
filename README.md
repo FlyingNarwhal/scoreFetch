@@ -24,4 +24,3 @@ Soon to add
 ============
 ability to launch podcasts 
 ability to search podcasts
-add The Basketball Jones podcast
