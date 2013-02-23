@@ -12,12 +12,16 @@ import datetime
 import json
 import os
 import elementtree.ElementTree as ET
+from bs4 import BeautifulSoup as bs
+import subproccess
+import termios
+import sys
+import webbrowser
 import kivy
 kivy.require('1.5.1')
 from kivy.uix.boxlayout import BoxLayout
 from kivy.app import App
 from kivy.uix.button import Button
-#from kivy.core.text import LabelBase as lb
 
 
 url = 'http://scores.nbcsports.msnbc.com/ticker/data/gamesMSNBC.\
