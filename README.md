@@ -13,6 +13,9 @@ at this point.
 
 Change log
 ==========
+v1.0
+ADDED: Full GUI; yup
+
 v0.8
 ADDED: auto-complete options
 ADDED: set you're favorite team
@@ -31,4 +34,4 @@ added the basic framework for downloading podcasts; currently downloads today's 
 
 Soon to add
 ============
-GUI
+
