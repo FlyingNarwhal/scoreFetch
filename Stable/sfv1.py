@@ -40,13 +40,14 @@ class ScoreFetchGUI(FloatLayout):
         super(ScoreFetchGUI, self).__init__(**kwargs)
         scoreLayout = GridLayout(
             cols=3,
+            rows=4,
             size_hint=(.7, 1),
             pos=(210, 0))
         self.add_widget(scoreLayout)
         dlPodBtn = Button(
             text='Download Podcast',
             size_hint=(.25, .15),
-            pos=(20, 200))
+            pos=(20, 100))
         sfBtn = Button(
             text='ScoreFetch!',
             size_hint=(.25, .15),
@@ -54,13 +55,14 @@ class ScoreFetchGUI(FloatLayout):
         feedBtn = Button(
             text='Watch Feed',
             size_hint=(.25, .15),
-            pos=(20, 100))
+            pos=(20, 50))
         feedTeamInput = TextInput(
-            text='Team',
+            text='team',
             size_hint=(.25, .13),
-            pos=(20, 15),
+            pos=(20, 10),
             focus=True,
-            multiline=False)
+            multiline=False,
+            )
         wimg = Image(source='/home/joe/Pictures/sfbanner.png',
                     pos=(0, 0))
         #enterTeamLbl = Label(
@@ -70,13 +72,13 @@ class ScoreFetchGUI(FloatLayout):
             text='NHL',
             group='league',
             size_hint=(.1, .1),
-            pos=(27, 60),
+            pos=(27, 200),
             state='down')
         leagueToggleNBA = ToggleButton(
             text='NBA',
             group='league',
             size_hint=(.1, .1),
-            pos=(100, 60))
+            pos=(100, 200))
         dlPodBtn.bind(on_release=whichPodCallback)
         leagueToggleNBA.bind(on_press=choiceCallbackNBA)
         leagueToggleNHL.bind(on_press=choiceCallbackNHL)
@@ -184,7 +186,7 @@ podcasts/thebasketballjones'
     tbjStartLink = 'http://feedproxy.google.com/~r/thescore/podcasts/\
 thebasketballjones/'
     bhsEndLink = '</guid>'
-    tbjEndLink = '></media:content>'
+    tbjEndLink = '"></media:content>'
     if choice == 'NHL':
         dlPodcast(soupLinkBHS, bhsStartLink, bhsEndLink)
     elif choice == 'NBA':
