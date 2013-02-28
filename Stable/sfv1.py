@@ -28,7 +28,7 @@ from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 
 Config.set('graphics', 'width', '600')
-Config.set('graphics', 'height', '350')
+Config.set('graphics', 'height', '250')
 
 choice = 'NHL'
 teamName = 'Coyotes'
@@ -39,52 +39,51 @@ class ScoreFetchGUI(FloatLayout):
     def __init__(self, **kwargs):
         super(ScoreFetchGUI, self).__init__(**kwargs)
         scoreLayout = GridLayout(
-            cols=2,
-            spacing=3,
-            size_hint=(.5, 1),
-            pos=(250, 0))
+            cols=3,
+            size_hint=(.7, 1),
+            pos=(210, 0))
         self.add_widget(scoreLayout)
         dlPodBtn = Button(
             text='Download Podcast',
-            size_hint=(.3, .1),
-            pos=(20, 250))
+            size_hint=(.25, .15),
+            pos=(20, 200))
         sfBtn = Button(
             text='ScoreFetch!',
-            size_hint=(.3, .1),
-            pos=(20, 200))
+            size_hint=(.25, .15),
+            pos=(20, 150))
         feedBtn = Button(
             text='Watch Feed',
-            size_hint=(.3, .1),
-            pos=(20, 150))
+            size_hint=(.25, .15),
+            pos=(20, 100))
         feedTeamInput = TextInput(
             text='Team',
-            size_hint=(.3, .08),
-            pos=(20, 83),
+            size_hint=(.25, .13),
+            pos=(20, 15),
             focus=True,
             multiline=False)
         wimg = Image(source='/home/joe/Pictures/sfbanner.png',
                     pos=(0, 0))
-        enterTeamLbl = Label(
-            text='Enter Team Name:',
-            pos=(-215, -45))
+        #enterTeamLbl = Label(
+            #text='Enter Team Name:',
+            #pos=(-215, -70))
         leagueToggleNHL = ToggleButton(
             text='NHL',
             group='league',
-            size_hint=(.1, .07),
-            pos=(45, 300),
+            size_hint=(.1, .1),
+            pos=(27, 60),
             state='down')
         leagueToggleNBA = ToggleButton(
             text='NBA',
             group='league',
-            size_hint=(.1, .07),
-            pos=(120, 300))
+            size_hint=(.1, .1),
+            pos=(100, 60))
         dlPodBtn.bind(on_release=whichPodCallback)
         leagueToggleNBA.bind(on_press=choiceCallbackNBA)
         leagueToggleNHL.bind(on_press=choiceCallbackNHL)
         feedTeamInput.bind(text=on_text)
         feedBtn.bind(on_release=showFeedCallback)
         self.add_widget(wimg)
-        self.add_widget(enterTeamLbl)
+        #self.add_widget(enterTeamLbl)
         self.add_widget(leagueToggleNHL)
         self.add_widget(leagueToggleNBA)
         self.add_widget(dlPodBtn)
@@ -121,8 +120,9 @@ js.asp?jsonp=true&sport=%s&period=%d'
                     os.environ['TZ'] = 'US/Mountain'
                     del os.environ['TZ']
                     playingLabel = Label(valign='top', halign='left',
-                        text=per + ' ' + away + ' ' + visitScore + '\n' +
-                        clock + ' ' + home + ' ' + homeScore)
+                        text=visitScore + ' ' + away + ' ' + per + '\n' +
+                        homeScore + ' ' + home + ' ' + clock,
+                        text_size=(200, None))
                     scoreLayout.add_widget(playingLabel)
 
             except Exception, e:
@@ -220,6 +220,8 @@ def showFeedCallback(instance):
 
 
 class ScoreFetch(App):
+
+    icon = '/home/joe/scoreFetch/logo/scoreFetch.ico'
 
     def build(self):
         return ScoreFetchGUI()
